@@ -65,7 +65,7 @@ export default function Home() {
 
                     <input
                         type="text"
-                        placeholder="Enter UAE mobile number"
+                        placeholder="Enter UAE Mobile Number (e.g. 0501234567)"
                         value={number}
                         onChange={(e) => setNumber(e.target.value)}
                         className="w-full border border-gray-300 rounded-2xl px-5 py-4 text-lg outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition"
