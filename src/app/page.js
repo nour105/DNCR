@@ -62,7 +62,6 @@ export default function Home() {
 
                 {/* INPUT */}
                 <div className="space-y-4">
-
                     <input
                         type="text"
                         placeholder="Enter UAE Mobile Number (e.g. 0501234567)"
