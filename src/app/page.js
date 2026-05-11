@@ -15,13 +15,13 @@ export default function Home() {
   const [error, setError] = useState("");
 
   // 🔐 PROTECTION
-  useEffect(() => {
-    const auth = localStorage.getItem("auth");
+ useEffect(() => {
+  const auth = localStorage.getItem("auth");
 
-    if (!auth) {
-      router.push("/login");
-    }
-  }, []);
+  if (!auth) {
+    router.push("/login");
+  }
+}, []);
 
   // 🚪 LOGOUT
   const logout = () => {
