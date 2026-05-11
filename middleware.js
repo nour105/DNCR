@@ -1,21 +1,29 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
-  const token = request.cookies.get("token")?.value;
 
-  const isLoginPage = request.nextUrl.pathname === "/login";
+    const token = request.cookies.get("token");
 
-  if (!token && !isLoginPage) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+    const isLoginPage =
+        request.nextUrl.pathname === "/login";
 
-  if (token && isLoginPage) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+    if (!token && !isLoginPage) {
+        return NextResponse.redirect(
+            new URL("/login", request.url)
+        );
+    }
 
-  return NextResponse.next();
+    if (token && isLoginPage) {
+        return NextResponse.redirect(
+            new URL("/", request.url)
+        );
+    }
+
+    return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+    matcher: [
+        "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    ],
 };
