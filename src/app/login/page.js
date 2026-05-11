@@ -37,10 +37,9 @@ export default function LoginPage() {
     }
 
     // ✅ AUTH SAVE
-localStorage.setItem("auth", "true");
-
-// force reload بعد login
-window.location.href = "/";
+// after success login
+document.cookie = "token=true; path=/";
+window.location.replace("/");
   }
 
   return (
