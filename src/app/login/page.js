@@ -37,10 +37,11 @@ export default function LoginPage() {
     }
 
     // ✅ AUTH SAVE
-    localStorage.setItem("auth", "true");
+localStorage.setItem("auth", "true");
 
-    router.push("/");
-  };
+// force reload بعد login
+window.location.href = "/";
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
