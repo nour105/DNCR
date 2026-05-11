@@ -7,12 +7,31 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
 
- const router = useRouter();
+const router = useRouter();
+
+  const [allowed, setAllowed] = useState(false);
 
   const [number, setNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+
+  // 🔐 PROTECTION FIX
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const auth = localStorage.getItem("auth");
+
+    if (!auth) {
+      window.location.replace("/login");
+      return;
+    }
+
+    setAllowed(true);
+  }, []);
+
+   if (!allowed) return null;
+
 
   // 🔐 PROTECTION
   const [ready, setReady] = useState(false);
