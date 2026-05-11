@@ -53,8 +53,8 @@ const router = useRouter();
 
   // 🚪 LOGOUT
   const logout = () => {
- document.cookie = "token=; Max-Age=0; path=/";
-window.location.replace("/login");
+    localStorage.removeItem("auth");
+    router.push("/login");
   };
 
   const checkDNCR = async () => {
