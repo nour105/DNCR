@@ -1,81 +1,38 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import db from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req) {
-
     try {
+        const { username, password } = await req.json();
 
-        const body = await req.json();
+        const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("username", username)
+            .single();
 
-        const { username, password } = body;
-
-        console.log("BODY:", body);
-
-        const [rows] = await db.execute(
-            "SELECT * FROM users WHERE username = ?",
-            [username]
-        );
-
-        console.log("ROWS:", rows);
-
-        if (rows.length === 0) {
-
+        if (error || !data) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "User not found",
-                },
+                { success: false, message: "User not found" },
                 { status: 401 }
             );
         }
 
-        const user = rows[0];
-
-        if (password !== user.password) {
-
+        if (password !== data.password) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "Wrong password",
-                },
+                { success: false, message: "Wrong password" },
                 { status: 401 }
             );
         }
 
-        const token = jwt.sign(
-            {
-                id: user.id,
-                username: user.username,
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "1d",
-            }
-        );
-
-        const response = NextResponse.json({
+        return NextResponse.json({
             success: true,
+            user: data,
         });
 
-        response.cookies.set("token", token, {
-            httpOnly: true,
-            secure: false,
-            path: "/",
-            maxAge: 60 * 60 * 24,
-        });
-
-        return response;
-
-    } catch (error) {
-
-        console.log("LOGIN ERROR:", error);
-
+    } catch (err) {
         return NextResponse.json(
-            {
-                success: false,
-                error: error.message,
-            },
+            { success: false, error: err.message },
             { status: 500 }
         );
     }

@@ -2,80 +2,90 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const router = useRouter();
 
-    const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-        e.preventDefault();
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("username", username)
+      .single();
 
-        const res = await fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username,
-                password,
-            }),
-        });
+    setLoading(false);
 
-        const data = await res.json();
+    if (error || !data) {
+      setError("User not found");
+      return;
+    }
 
-        if (data.success) {
-            router.push("/");
-        } else {
-            alert(data.message);
-        }
-    };
+    if (password !== data.password) {
+      setError("Wrong password");
+      return;
+    }
 
-    return (
-        <div
-            style={{
-                height: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-        >
-            <form
-                onSubmit={handleLogin}
-                style={{
-                    width: "300px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                }}
-            >
-                <h1>Login</h1>
+    // ✅ AUTH SAVE
+    localStorage.setItem("auth", "true");
 
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) =>
-                        setUsername(e.target.value)
-                    }
-                />
+    router.push("/");
+  };
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) =>
-                        setPassword(e.target.value)
-                    }
-                />
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
 
-                <button type="submit">
-                    Login
-                </button>
-            </form>
-        </div>
-    );
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
+
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Login
+        </h1>
+
+        {error && (
+          <div className="bg-red-100 text-red-600 p-2 rounded mb-4 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full p-3 border rounded-lg"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 border rounded-lg"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white p-3 rounded-lg"
+          >
+            {loading ? "Loading..." : "Login"}
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+  );
 }

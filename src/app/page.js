@@ -1,50 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+
 
 export default function Home() {
 
-    const [number, setNumber] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState(null);
-    const [error, setError] = useState("");
+ const router = useRouter();
 
-    const checkDNCR = async () => {
+  const [number, setNumber] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
 
-        setLoading(true);
-        setResult(null);
-        setError("");
+  // 🔐 PROTECTION
+  useEffect(() => {
+    const auth = localStorage.getItem("auth");
 
-        try {
+    if (!auth) {
+      router.push("/login");
+    }
+  }, []);
 
-            const res = await fetch(`/api/dncr?number=${number}`);
-            const data = await res.json();
+  // 🚪 LOGOUT
+  const logout = () => {
+    localStorage.removeItem("auth");
+    router.push("/login");
+  };
 
-            if (data.error) {
-                setError(data.error);
-            } else {
-                setResult(data);
-            }
+  const checkDNCR = async () => {
+    setLoading(true);
+    setResult(null);
+    setError("");
 
-        } catch (err) {
+    try {
+      const res = await fetch(`/api/dncr?number=${number}`);
+      const data = await res.json();
 
-            setError("Something went wrong");
+      if (data.error) setError(data.error);
+      else setResult(data);
 
-        }
+    } catch (err) {
+      setError("Something went wrong");
+    }
 
-        setLoading(false);
-    };
+    setLoading(false);
+  };
 
-    // FALSE = CAN CONTACT
-    // TRUE = DO NOT CONTACT
+  const dncrStatus = result?.details?.[0]?.dncrStatus;
+  const canContact = dncrStatus === "FALSE";
 
-    const dncrStatus = result?.details?.[0]?.dncrStatus;
-
-    const canContact = dncrStatus === "FALSE";
 
     return (
         <main className="min-h-screen bg-[#0f172a] flex items-center justify-center p-6">
-
+  {/* 🚪 LOGOUT BUTTON */}
+      <button
+        onClick={logout}
+        className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-xl"
+      >
+        Logout
+      </button>
             <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl p-8">
 
                 {/* HEADER */}
