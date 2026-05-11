@@ -18,36 +18,30 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("username", username)
-        .single();
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("username", username)
+      .single();
 
-      setLoading(false);
+    setLoading(false);
 
-      if (error || !data) {
-        setError("User not found");
-        return;
-      }
-
-      if (password !== data.password) {
-        setError("Wrong password");
-        return;
-      }
-
-      // 🔐 SAVE AUTH COOKIE (FIXED FOR PRODUCTION)
-      document.cookie = "token=true; path=/; SameSite=Lax; Secure";
-
-      // 🚀 REDIRECT
-      window.location.replace("/");
-
-    } catch (err) {
-      setLoading(false);
-      setError("Something went wrong");
+    if (error || !data) {
+      setError("User not found");
+      return;
     }
-  };
+
+    if (password !== data.password) {
+      setError("Wrong password");
+      return;
+    }
+
+    // ✅ AUTH SAVE
+localStorage.setItem("auth", "true");
+
+// force reload بعد login
+window.location.href = "/";
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
